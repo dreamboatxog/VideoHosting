@@ -1,0 +1,32 @@
+# Ignore sensitive files
+*.env
+*.key
+*.pfx
+*.pem
+*.crt
+*.cer
+appsettings.Development.json
+*.config
+secrets.json
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+*.txt
+*.exe
+*.mp4
+
+# Ignore publish outputs
+publish/
+wwwroot/
