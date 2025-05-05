@@ -1,43 +1,25 @@
+using StreamingService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using VideoService.Infrastructure;
-using VideoService.Application.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using StreamingService.Application.Interfaces;
+using StreamingService.Infrastructure.Repositories;
+using StreamingService.Application.Services;
 using MassTransit;
-using VideoService.Infrastructure.Services;
-using VideoService.Infrastructure.Repositories;
-using VideoService.Infrastructure.Publishers;
 using Shared.Messages;
-using VideoService.Infrastructure.Consumers;
-using Shared.Interfaces;
+using StreamingService.Infrastructure.Consumers;
+
 var builder = WebApplication.CreateBuilder(args);
-
-
-builder.Services.AddDbContext<VideoDbContext>(opt =>
+builder.Services.AddDbContext<StreamDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-    
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Limits.MaxRequestBodySize = 104857600; // 100 MB
-});
 
-builder.Services.AddScoped<IVideoRepository, VideoRepository>();
-builder.Services.AddScoped<IFileStorageService, LocalStorageService>();
-builder.Services.AddScoped<IVideoService, VideoService.Application.Services.VideoService>();
-builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
-builder.Services.AddScoped<IConsumer<VideoProcessed>,VideoProcessedConsumer>();
 
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration["Redis:Configuration"];
-    options.InstanceName = builder.Configuration["Redis:InstanceName"];
-});
+builder.Services.AddScoped<IStreamRepository, StreamRepository>();
+builder.Services.AddScoped<IStreamingProvider, HlsStreamingService>();
+builder.Services.AddScoped<IConsumer<HlsGenerated>,HlsGeneratedConsumer>();
 
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<IConsumer<VideoProcessed>>();
+    x.AddConsumer<IConsumer<HlsGenerated>>();
 
     x.UsingRabbitMq((context, cfg) =>
        {
@@ -46,9 +28,9 @@ builder.Services.AddMassTransit(x =>
                h.Username(builder.Configuration["RabbitMQ:Username"]);
                h.Password(builder.Configuration["RabbitMQ:Password"]);
            });
-           cfg.ReceiveEndpoint("video-processed-queue", e =>
+           cfg.ReceiveEndpoint("hls-generated-queue", e =>
            {
-               e.ConfigureConsumer<IConsumer<VideoProcessed>>(context);
+               e.ConfigureConsumer<IConsumer<HlsGenerated>>(context);
            });
 
            cfg.ConfigureEndpoints(context);
@@ -95,7 +77,7 @@ if(string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience) || strin
     throw new Exception("JWT configuration is missing in appsettings.json");
 }
 
-builder.Services
+/* builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -113,7 +95,7 @@ builder.Services
                 Encoding.UTF8.GetBytes(jwtSecretKey)
             )
         };
-    });
+    }); */
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

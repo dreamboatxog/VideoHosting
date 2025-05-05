@@ -32,6 +32,13 @@ public class VideoWorkflowOrchestrator(IMessagePublisher _messagePublisher, IEnu
             );
 
             await _messagePublisher.Publish(message);
+
+               var hlsMessage = new HlsGenerated(
+                videoId,
+                context.HlsPath
+            );
+
+            await _messagePublisher.Publish(hlsMessage);
         }
         catch (Exception ex)
         {
