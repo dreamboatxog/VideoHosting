@@ -10,19 +10,18 @@ public class LocalFileStorage : IFileStorageInterface
     private readonly string _basePath = @"D:\Temp";
     public async Task<string> GetHLSSavePath(Guid id)
     {
-        return await CreateAndReturnPath("HLS", id);
+        return Path.Combine(await CreateAndReturnPath("HLS", id),id.ToString()+".m3u8");
     }
 
     public async Task<string> GetThumbnailSavePath(Guid id)
     {
-        return await CreateAndReturnPath("Thumbnail", id);
+        return Path.Combine(await CreateAndReturnPath("Thumbnail", id),id.ToString()+".png");
     }
 
     public async Task<string> GetVideoSavePath(Guid id, Size resolution)
     {
         return await CreateAndReturnPath("Video", id, resolution);
     }
-
 
     private Task<string> CreateAndReturnPath(string subfolder, Guid id, Size? resolution = null)
     {

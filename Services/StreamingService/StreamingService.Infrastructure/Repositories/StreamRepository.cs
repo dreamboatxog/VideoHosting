@@ -1,7 +1,4 @@
-using System;
-using Microsoft.EntityFrameworkCore;
 using StreamingService.Application.Interfaces;
-using StreamingService.Domain.Entities;
 
 namespace StreamingService.Infrastructure.Repositories;
 
@@ -13,9 +10,13 @@ public class StreamRepository(StreamDbContext _dbContext) : IStreamRepository
         return await _dbContext.SaveChangesAsync()>0;
     }
 
-    public async Task<bool> DeleteAsync(Domain.Entities.Stream stream)
+    public async Task<bool> DeleteAsync(Guid Id)
     {
-         _dbContext.Streams.Remove(stream);
+        var stream= await _dbContext.Streams.FindAsync(Id);
+        if(stream is null){
+            throw new Exception($"Stream with id {Id} not found.");
+        }
+        _dbContext.Streams.Remove(stream);
         return await _dbContext.SaveChangesAsync()>0;
     }
 
@@ -23,7 +24,11 @@ public class StreamRepository(StreamDbContext _dbContext) : IStreamRepository
 
     public async Task<Domain.Entities.Stream> GetByIdAsync(Guid streamId)
     {
-        return await _dbContext.Streams.FindAsync(streamId);
+        var stream= await _dbContext.Streams.FindAsync(streamId);
+        if(stream is null){
+            throw new Exception($"Stream with id {streamId} not found.");
+        }
+        return stream;
     }
 
 }

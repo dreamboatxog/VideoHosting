@@ -7,22 +7,12 @@ namespace StreamingService.API.Controllers
     [ApiController]
     public class StreamController(IStreamingProvider _streamingProvider) : ControllerBase
     {
-      
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
-        {
-            var playlist = await _streamingProvider.GetPlaylistPathAsync(id);
-            
-            return playlist != null ? PhysicalFile(playlist.Value.Path, playlist.Value.ContentType) : NotFound();
-        }
-
-
         [HttpGet("{videoId:guid}/{**relativePath}")]
         public async Task<IActionResult> Get(Guid videoId, string? relativePath)
         {
-            var segment = await _streamingProvider.GetSegmentPathAsync(videoId, relativePath);
-  //var stream = new FileStream(segment.Value.Path, FileMode.Open, FileAccess.Read, FileShare.Read);
-            return PhysicalFile(segment.Value.Path, segment.Value.ContentType);
+             var fullPath= await _streamingProvider.GetStreamAsync(videoId, relativePath);
+        var stream = new FileStream(fullPath.Value.Item1, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return File(stream, fullPath.Value.Item2);
         }
     }
 }

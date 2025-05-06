@@ -1,6 +1,3 @@
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Caching.Distributed;
 using Shared.Interfaces;
 using Shared.Messages;
 using VideoService.Application.DTOs;
@@ -11,10 +8,8 @@ using VideoService.Domain.Enums;
 
 namespace VideoService.Application.Services;
 
-public class VideoService(IVideoRepository _repository, IFileStorageService _storageService, IMessagePublisher _messagePublisher, IDistributedCache _cache) : IVideoService
+public class VideoService(IVideoRepository _repository, IFileStorageService _storageService, IMessagePublisher _messagePublisher) : IVideoService
 {
-    private record StreamCache(string FullPath, string ContentType);
-
     public async Task<bool> DeleteVideoAsync(Guid id)
     {
         var video = await _repository.GetByIdAsync(id);
@@ -22,6 +17,7 @@ public class VideoService(IVideoRepository _repository, IFileStorageService _sto
             return false;
         if (!string.IsNullOrEmpty(video.FilePath))
             await _storageService.DeleteAsync(video.FilePath);
+        await _messagePublisher.Publish(new VideoDeleted(video.Id));
         return await _repository.DeleteAsync(video);
     }
 
@@ -34,58 +30,6 @@ public class VideoService(IVideoRepository _repository, IFileStorageService _sto
             return null;
         return video;
     }
-
-    public async Task<(string, string)?> GetStreamByIdAsync(Guid id, string? relativePath)
-    {
-        var cachedValue = await _cache.GetStringAsync(id.ToString() + relativePath ?? "");
-        if (cachedValue != null)
-        {
-            var value = JsonSerializer.Deserialize<StreamCache>(cachedValue);
-            return (value.FullPath, value.ContentType);
-        }
-
-        var video = await _repository.GetByIdAsync(id);
-        if (video == null || string.IsNullOrWhiteSpace(video.HLSPath))
-            return null;
-
-        string fullPath;
-
-        if (string.IsNullOrWhiteSpace(relativePath))
-        {
-            fullPath = video.HLSPath;
-        }
-        else
-        {
-            var videoFolder = Path.GetDirectoryName(video.HLSPath);
-            if (string.IsNullOrWhiteSpace(videoFolder))
-            {
-                return null;
-            }
-
-            fullPath = Path.Combine(videoFolder, relativePath);
-        }
-
-        if (!System.IO.File.Exists(fullPath))
-            return null;
-
-        var ext = Path.GetExtension(fullPath).ToLowerInvariant();
-        var contentType = ext switch
-        {
-            ".m3u8" => "application/vnd.apple.mpegurl",
-            ".ts" => "video/MP2T",
-            _ => "application/octet-stream"
-        };
-
-        var cacheData = new StreamCache(fullPath,contentType);
-        var cacheJson = JsonSerializer.Serialize(cacheData);
-        await _cache.SetStringAsync(id.ToString() + relativePath ?? "", cacheJson, new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
-        });
-
-        return (fullPath, contentType);
-    }
-
     public async Task<bool> ProcessVideoAsync(VideoProcessed processedVideo)
     {
         var video = await _repository.GetByIdAsync(processedVideo.Id);
@@ -97,9 +41,8 @@ public class VideoService(IVideoRepository _repository, IFileStorageService _sto
             return await _repository.UpdateAsync(video);
         }
         video.Status = VideoStatus.Completed;
-        video.HLSPath = processedVideo.HLSPath;
-        video.ThumbnailPath = processedVideo.ThumbnailPath;
-        video.FilePath = processedVideo.ProcessedVideoPath.FirstOrDefault() ?? string.Empty;
+        video.ThumbnailPath = processedVideo.ThumbnailPath!;
+        video.FilePath = processedVideo.ProcessedVideoPath!.FirstOrDefault() ?? string.Empty;
         return await _repository.UpdateAsync(video);
     }
 

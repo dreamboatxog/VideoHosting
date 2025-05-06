@@ -28,12 +28,6 @@ builder.Services.AddScoped<IVideoService, VideoService.Application.Services.Vide
 builder.Services.AddScoped<IMessagePublisher, MessagePublisher>();
 builder.Services.AddScoped<IConsumer<VideoProcessed>,VideoProcessedConsumer>();
 
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration["Redis:Configuration"];
-    options.InstanceName = builder.Configuration["Redis:InstanceName"];
-});
-
 
 builder.Services.AddMassTransit(x =>
 {

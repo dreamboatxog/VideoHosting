@@ -5,8 +5,7 @@ namespace StreamingService.Application.Interfaces;
 
 public interface IStreamingProvider
 {
-    Task<(string Path, string ContentType)?> GetPlaylistPathAsync(Guid videoId);
+    Task<(string Path, string ContentType)?> GetStreamAsync(Guid videoId, string? relativePath);
     Task AddAsync(HlsGenerated hlsMessage);
     Task<bool> RemoveAsync(Guid videoId);
-    Task<(string Path, string ContentType)?> GetSegmentPathAsync(Guid videoId, string segment);
 }

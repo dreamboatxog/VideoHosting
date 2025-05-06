@@ -11,7 +11,7 @@ public class HlsGenerationStep(FFMpegConverter _fFMpeg, IFileStorageInterface _f
         try
         {
             var outputDirectory = await _fileStorage.GetHLSSavePath(videoId);
-
+            System.Console.WriteLine("Output Directory: " + outputDirectory);
             var arguments = $"-i \"{videoFilePath}\" " +
                             "-profile:v baseline -level 1.0 -start_number 0 " +
                             "-hls_time 1 -hls_list_size 0 -f hls " +

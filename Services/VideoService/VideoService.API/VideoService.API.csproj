@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\StreamingService\StreamingService.API\StreamingService.API.csproj" />
     <ProjectReference Include="..\VideoService.Application\VideoService.Application.csproj" />
     <ProjectReference Include="..\VideoService.Infrastructure\VideoService.Infrastructure.csproj" />
   </ItemGroup>

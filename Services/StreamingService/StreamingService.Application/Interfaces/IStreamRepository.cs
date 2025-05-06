@@ -6,5 +6,5 @@ public interface IStreamRepository
 {
     Task<Stream> GetByIdAsync(Guid streamId);
     Task<bool> AddAsync(Stream stream);
-    Task<bool> DeleteAsync(Stream stream);
+    Task<bool> DeleteAsync(Guid guid);
 }

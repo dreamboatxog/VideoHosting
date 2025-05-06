@@ -18,7 +18,7 @@ public class VideoWorkflowOrchestrator(IMessagePublisher _messagePublisher, IEnu
 
                 if (!context.Success)
                 {
-                    System.Console.WriteLine("Processing failed at step: " + step.GetType().Name+" for videoId: " + videoId+" with error: "+ context.ErrorMessage );
+                    Console.WriteLine("Processing failed at step: " + step.GetType().Name+" for videoId: " + videoId+" with error: "+ context.ErrorMessage );
                     break;
                 }
             }
@@ -27,7 +27,6 @@ public class VideoWorkflowOrchestrator(IMessagePublisher _messagePublisher, IEnu
                 videoId,
                 context.ThumbnailPath,
                 context.Resolutions,
-                context.HlsPath,
                 context.Success
             );
 
@@ -42,7 +41,8 @@ public class VideoWorkflowOrchestrator(IMessagePublisher _messagePublisher, IEnu
         }
         catch (Exception ex)
         {
-            var errorMessage = new VideoProcessed(videoId, null, null, null, false);
+            Console.WriteLine("Exception:"+ex.Message);
+            var errorMessage = new VideoProcessed(videoId, null, null, false);
             await _messagePublisher.Publish(errorMessage);
             throw;
         }

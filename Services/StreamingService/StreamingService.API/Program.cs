@@ -15,11 +15,13 @@ builder.Services.AddDbContext<StreamDbContext>(opt =>
 builder.Services.AddScoped<IStreamRepository, StreamRepository>();
 builder.Services.AddScoped<IStreamingProvider, HlsStreamingService>();
 builder.Services.AddScoped<IConsumer<HlsGenerated>,HlsGeneratedConsumer>();
+builder.Services.AddScoped<IConsumer<VideoDeleted>,VideoDeletedConsumer>();
 
 
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<IConsumer<HlsGenerated>>();
+    x.AddConsumer<IConsumer<VideoDeleted>>();
 
     x.UsingRabbitMq((context, cfg) =>
        {
@@ -32,11 +34,20 @@ builder.Services.AddMassTransit(x =>
            {
                e.ConfigureConsumer<IConsumer<HlsGenerated>>(context);
            });
+            cfg.ReceiveEndpoint("video-deleted-queue", e =>
+           {
+               e.ConfigureConsumer<IConsumer<VideoDeleted>>(context);
+           });
 
            cfg.ConfigureEndpoints(context);
        });
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:Configuration"];
+    options.InstanceName = builder.Configuration["Redis:InstanceName"];
+});
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>

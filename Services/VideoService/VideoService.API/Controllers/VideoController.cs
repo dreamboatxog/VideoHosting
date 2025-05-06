@@ -25,15 +25,6 @@ public class VideoController(IVideoService _videoService) : ControllerBase
         return video != null ? Ok(video) : NotFound();
     }
 
-    
-    [HttpGet("stream/{videoId:guid}/{**relativePath}")]
-    public async Task<IActionResult> Get(Guid videoId, string? relativePath)
-    {
-        var fullPath= await _videoService.GetStreamByIdAsync(videoId, relativePath);
-        var stream = new FileStream(fullPath.Value.Item1, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return File(stream, fullPath.Value.Item2);
-    }
-
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateVideoDTO dto)
     {
