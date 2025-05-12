@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingService.Infrastruc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingService.API", "Services\StreamingService\StreamingService.API\StreamingService.API.csproj", "{C9FA9798-3060-485E-8045-606DB7E8D9EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoService.Tests", "Services\VideoService\VideoService.Tests\VideoService.Tests.csproj", "{EA379059-3100-4313-B90B-2DEB357A6767}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +113,10 @@ Global
 		{C9FA9798-3060-485E-8045-606DB7E8D9EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9FA9798-3060-485E-8045-606DB7E8D9EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9FA9798-3060-485E-8045-606DB7E8D9EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA379059-3100-4313-B90B-2DEB357A6767}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA379059-3100-4313-B90B-2DEB357A6767}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA379059-3100-4313-B90B-2DEB357A6767}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA379059-3100-4313-B90B-2DEB357A6767}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +141,7 @@ Global
 		{15D37CE4-5626-49F7-B2DF-168FE593C719} = {641C1B22-012B-47A1-8477-90E10C3B11F0}
 		{2BD59CF8-D52F-4E87-8418-C7C8D7844ADD} = {641C1B22-012B-47A1-8477-90E10C3B11F0}
 		{C9FA9798-3060-485E-8045-606DB7E8D9EA} = {641C1B22-012B-47A1-8477-90E10C3B11F0}
+		{EA379059-3100-4313-B90B-2DEB357A6767} = {F61816F7-13F5-CE32-028F-2CDAEB04DFFB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D05516BA-98CE-40AC-BDEF-9FC31DFBC789}

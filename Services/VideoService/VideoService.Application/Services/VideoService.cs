@@ -40,6 +40,10 @@ public class VideoService(IVideoRepository _repository, IFileStorageService _sto
             video.Status = VideoStatus.Failed;
             return await _repository.UpdateAsync(video);
         }
+        if (processedVideo.ThumbnailPath == null || processedVideo.ProcessedVideoPath == null)
+        {
+           return false;
+        }
         video.Status = VideoStatus.Completed;
         video.ThumbnailPath = processedVideo.ThumbnailPath!;
         video.FilePath = processedVideo.ProcessedVideoPath!.FirstOrDefault() ?? string.Empty;
