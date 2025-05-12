@@ -2,7 +2,8 @@
 Это платформа видеохостинга, построенная на микросервисной архитектуре. Она поддерживает:
 
 -  Аутентификацию пользователей  
--  Загрузку и обработку видео (генерация миниатюр и HLS-потоков)  
+-  Загрузку и обработку видео (генерация миниатюр и HLS-потоков)
+-  Предоставление доступа к видео через HLS-поток
 -  Маршрутизацию через API-шлюз на базе YARP  
 
 ---
@@ -17,6 +18,7 @@
 - Проксирует запросы по путям:
   - `/auth-api/*` → **AuthService**
   - `/video-api/*` → **VideoService**
+  - `/stream-api/*` → **StreamService**
 
 ###  AuthService
 
@@ -26,8 +28,14 @@
 ###  VideoService
 
 - Управляет загрузкой видео и их метаданными
-- Предоставляет доступ к **HLS-потокам** для обработанных видео
 - Отправляет сообщения `VideoCreated` в **RabbitMQ** для запуска обработки
+
+###  StreamingService
+
+- Подписывается на сообщения `HlsGenerated`, `VideoDeleted` из **RabbitMQ**
+- Кэширует сегменты HLS-потока в Redis
+- Предоставляет доступ к **HLS-потокам** для обработанных видео
+
 
 ###  ProcessingService
 
@@ -42,7 +50,7 @@
 
 - Содержит общие интерфейсы и контракты:
   - `IMessagePublisher` — интерфейс публикации сообщений
-  - `VideoCreated`, `VideoProcessed` — сообщения для **RabbitMQ**
+  - `VideoCreated`, `VideoProcessed`, `VideoDeleted`, `HlsGemerated` — сообщения для **RabbitMQ**
 
 ---
 
@@ -51,14 +59,10 @@
 - .NET 8, ASP.NET Core  
 - PostgreSQL
 - RabbitMQ (**MassTransit**)  
-- YARP (API Gateway)  
+- YARP (API Gateway)
+- Redis (Caching)
 - FFmpeg (обёртка **NReco.VideoConverter**)  
 - Entity Framework Core  
 
 ---
 
-##  Планы 
-
-###  Выделение сервиса стриминга HLS
-
-Сервис будет вынесен из `VideoService` в отдельный микросервис для повышения производительности и масштабируемости.
